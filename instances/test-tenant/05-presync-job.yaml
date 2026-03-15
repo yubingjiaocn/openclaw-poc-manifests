@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: presync-backup-test
+  namespace: oc-test-tenant
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      serviceAccountName: openclaw-backup
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: rclone
+        image: rclone/rclone:1.68
+        command: ["sh", "-c"]
+        args:
+        - |
+          TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+          rclone sync /data \
+            ":s3:bingjiao-openclaw-storage/backup-test/custom/presync-${TIMESTAMP}" \
+            --s3-provider AWS --s3-region us-west-2 --s3-env-auth \
+            --transfers 8 --checkers 16 -v
+        volumeMounts:
+        - name: data
+          mountPath: /data
+          readOnly: true
+        resources:
+          requests: { cpu: "200m", memory: "256Mi" }
+          limits:   { cpu: "1000m", memory: "512Mi" }
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: test-tenant-data

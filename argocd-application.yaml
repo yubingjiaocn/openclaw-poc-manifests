@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: test-tenant
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # ⚠️ 替换为实际 Git 仓库 URL
+    repoURL: https://github.com/yubingjiaocn/openclaw-poc-manifests.git
+    targetRevision: main
+    path: instances/test-tenant
+  destination:
+    name: in-cluster
+    namespace: oc-test-tenant
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: openclaw.rocks
+      kind: OpenClawInstance
+      jsonPointers:
+        - /status

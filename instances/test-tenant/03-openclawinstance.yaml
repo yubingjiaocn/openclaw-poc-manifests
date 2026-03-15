@@ -1,0 +1,30 @@
+apiVersion: openclaw.rocks/v1alpha1
+kind: OpenClawInstance
+metadata:
+  name: test-tenant
+  namespace: oc-test-tenant
+  labels:
+    openclaw.rocks/tenant: "test"
+spec:
+  image:
+    tag: "2026.3.8"
+  autoUpdate:
+    enabled: false
+  storage:
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClass: "efs-sc"
+      orphan: true
+  backup:
+    schedule: "0 */6 * * *"
+    serviceAccountName: "openclaw-backup"
+    retentionDays: 7
+    timeout: "30m"
+  config:
+    mergeMode: merge
+    raw:
+      agents:
+        defaults:
+          model:
+            primary: "amazon-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0"
