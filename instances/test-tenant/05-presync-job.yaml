@@ -25,7 +25,7 @@ spec:
         - |
           TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
           rclone sync /data \
-            ":s3:nonexistent-bucket-fail-test-v2/backup-test/custom/presync-${TIMESTAMP}" \
+            ":s3:bingjiao-openclaw-storage/backup-test/custom/presync-${TIMESTAMP}" \
             --s3-provider AWS --s3-region us-west-2 --s3-env-auth \
             --transfers 8 --checkers 16 -v
         volumeMounts:
